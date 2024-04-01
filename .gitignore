@@ -16,3 +16,4 @@
 *.json
 Historical-ranking-data-visualization-based-on-d3.js-master
 venv
+__pycache__
