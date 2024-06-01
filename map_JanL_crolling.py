@@ -51,6 +51,7 @@ made_by_other_headMap={
     422:'추리',
     424:'슈팅',
     426:'AOS',
+    427:'호환요청',
 }
 chrome = r'"C:\Program Files\Google\Chrome\Application\chrome.exe"'
 

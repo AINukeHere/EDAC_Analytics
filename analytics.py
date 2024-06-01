@@ -64,184 +64,114 @@ class Analyzer():
         result.to_clipboard(index=False, header=None)
         print('클립보드에 복사되었습니다.')
     
-    def analytics_inflow(self, includeMe, joinMe, category_map = None, requestYear = None):
-        dataDir = os.path.join('data', 'inflow_rank', joinMe, 'preprocess')
+    def analytics_inflow(self, reqYear, reqMonth, category_map = None):
+        #TODO 멤버 + 비멤버 + 전체 자동 병합 구현
+        dataDir = os.path.join('data', 'inflow_rank', 'preprocess')
         flist = os.listdir(dataDir)
-        searchinflow = [f for f in flist if includeMe in f]
 
-        result_columns_list = []
+        wordList = []
+        wordToIdx = {}
+        result_columns_list = [['검색어', '멤버', '비멤버', '전체 방문자']]
         dataFrame_excels = []
-        for fname in searchinflow:
+        for fname in flist:
             fPath = os.path.join(dataDir, fname)
             ed = pd.read_excel(fPath, engine = 'openpyxl', header=None)
-            res = re.findall('.*_(.*)-(.*)-(.*)\.', fname)[0]
-            year = int(res[0])
-            month = int(res[1])
-            day = int(res[2])
-            if requestYear is not None:
-                if year != requestYear:
-                    print(f'{fPath} 건너뜀')
-                    continue
-                
-            dataFrame_excels.append([ed, f'{year}-{month:02d}-{day:02d}']) # dataFrame, period
+            res = re.findall('전체 게시판_검색 유입_(.*)_(.*)-(.*)-(.*)\.', fname)[0]
+            검색한사람 = str(res[0])
+            year = int(res[1])
+            month = int(res[2])
+            day = int(res[3])
+            if reqYear != year or reqMonth != month:
+                continue
+            countIdx = -1
+            if 검색한사람 in ('카페회원I', '카페회원II', '우수회원I', '우수회원II', '감사회원', 'VIP 회원'):
+                countIdx = 0
+            elif 검색한사람 == '방문자 전체':
+                countIdx = 2
+            elif 검색한사람 == '비멤버':
+                countIdx = 1
+            assert countIdx != -1
+            # dataFrame_excels.append([ed, f'{year}-{month:02d}-{day:02d}']) # dataFrame, period
             for row in ed.values:
                 if isinstance(row[0], str):
                     searchWord = row[0]
-                    category_name = searchWord
-                    if searchWord == '지뢰찾기':
-                        print('here')
-                        assert 'here'
-                    if category_map is not None:
-                        for category_key in category_map:
-                            category_value_list = category_map[category_key]
-                            for category_value in category_value_list:
-                                if category_value in searchWord:
-                                    category_name = category_key
-                                    # print(f'{searchWord} => {category_key}')
-                                    break
+                    searchCount = int(str(row[1]).replace(',','').replace('.',''))
+                    if searchWord == '기타':
+                        pass
+                    if not searchWord in wordToIdx:
+                        wordToIdx[searchWord] = len(wordList)
+                        wordList.append([searchWord, [0,0,0]]) # 멤버, 비멤버, 전체 방문자
+                    listIdx = wordToIdx[searchWord]
+                    wordList[listIdx][1][countIdx] += searchCount
 
-                    if category_name in result_columns_list:
-                        continue
-                    result_columns_list.append(category_name)
-                    print(f'{category_name} 추가됨')
-        
-        dataFrame_excels.sort(key=lambda x : x[1])
+        # for wordCounts in wordList:
+        #     if wordCounts[1][2] == 0:
+        #         wordCounts[1][2] = wordCounts[1][0] + wordCounts[1][1]
+        #     else:
+        #         if wordCounts[1][1] == 0:
+        #             wordCounts[1][1] = wordCounts[1][2] - wordCounts[1][0]
+        #         elif wordCounts[1][0] == 0:
+        #             wordCounts[1][0] = wordCounts[1][2] - wordCounts[1][1]
+
+        wordList.sort(key=lambda x:x[1][0]+x[1][1],reverse=True)
+
+        for wordCounts in wordList:
+            result_columns_list.append([wordCounts[0],wordCounts[1][0],wordCounts[1][1],wordCounts[1][2]])
         print(result_columns_list)
-        result_columns_list.insert(0, '기간')
-        data_result = [result_columns_list]
 
-        for ed_period in dataFrame_excels:
-            ed = ed_period[0]
-            period = ed_period[1]
-            new_row = [0]*len(result_columns_list)
-            new_row[0] = f'{period} ({joinMe})'
-            
-            for row in ed.values:
-                if isinstance(row[0], str):
-                    searchWord = row[0]
-                    searchCount = row[1]
-                    
-                    category_name = searchWord
-                    if category_map is not None:
-                        for category_key in category_map:
-                            category_value_list = category_map[category_key]
-                            for category_value in category_value_list:
-                                if category_value in searchWord:
-                                    category_name = category_key
-                                    break
+        for item in result_columns_list:
+            for i in range(1, 4):
+                if item[i] == 0:
+                    item[i] = ''
+        result= pd.DataFrame(result_columns_list)
+        # result = result.transpose()
+        result.to_excel(f'{year}년 {month}월 검색 유입 통계.xlsx', index=False, header=None)
 
-                    idx = result_columns_list.index(category_name)
-                    if isinstance(searchCount, str):
-                        new_row[idx] += int(searchCount.replace(',',''))
-                    else:
-                        new_row[idx] += int(searchCount)
-            data_result.append(new_row)
-        # print(data_result)
-        result= pd.DataFrame(data_result)
-        result = result.transpose()
-        result.to_clipboard(index=False, header=None)
-        print('클립보드에 복사되었습니다.')
 
-    def analytics_inflow_new_for_historical(self, includeMe, joinMeList, category_map = None):
-        data_result = [['name','type','value','date']]
+    def analytics_inflow_preprocess(self):
         ed_list = []
-        typeDict = {}
-        period_dict = {}
-        nextType = 0
-        for joinMe in joinMeList:
-            dataDir = os.path.join('data', 'inflow_analytics', joinMe)
-            flist = os.listdir(dataDir)
-            searchinflow = [f for f in flist if includeMe in f]
-            for fname in searchinflow:
-                fPath = os.path.join(dataDir, fname)
-                ed = pd.read_excel(fPath, engine = 'openpyxl')
-                ed_list.append(ed)
+        board_period_dict = {} # 중복 데이터 검사용
+        dataDir = os.path.join('data', 'inflow_rank')
+        outputDir = os.path.join(dataDir, 'preprocess')
+        moveToDir = os.path.join(dataDir, '원본')        
+        if not os.path.exists(outputDir):
+            os.makedirs(outputDir)
+        flist = os.listdir(dataDir)
+        for fname in flist:
+            fPath = os.path.join(dataDir, fname)
+            if os.path.isdir(fPath):
+                continue
+            ed = pd.read_excel(fPath, engine = 'openpyxl')
+            ed_list.append(ed)
 
-                period = ed.columns.values[1]
-                if period in period_dict:
-                    raise Exception(f'{period}, {fname}')
-                period_dict[period] = True
-
+            period = ed.columns.values[1]
+            boardType = ed.values[3][1] # 게시판 이름
+            dataTitle = ed.values[4][1] # 검색 유입 or 카페 내 검색
+            조사대상 = ed.values[5][1] # 방문자 전체 or 멤버 전체, 비멤버
+            data_unique_key = f'{boardType}_{dataTitle}_{조사대상}_{period}'
+            if data_unique_key in board_period_dict:
+                raise Exception(f'동일한 데이터: {data_unique_key}\n{fname} == {board_period_dict[data_unique_key]}')
+            board_period_dict[data_unique_key] = fname
+    
         ed_list.sort(key=lambda x : x.columns.values[1])
         for ed in ed_list:
             period = ed.columns.values[1]
-            print(period)
-            values = ed.values[8:,:2]
-            curCsvDict = {}
-            for row in values:
-                if isinstance(row[0], str):
-                    searchWord = row[0]
-                    searchCount = row[1]
-
-                    _name = searchWord
-                    for category_name in category_map:
-                        if searchWord in category_map[category_name]:
-                            _name = category_name
-                    if _name == '기타':
-                        continue
-                    if not _name in typeDict:
-                        typeDict[_name] = nextType
-                        nextType += 1
-                    _type = typeDict[_name]
-                    nextType += 1
-                    _value = int(searchCount.replace(',',''))
-                    if not _name in curCsvDict:
-                        curCsvDict[_name] = [_type, _value]
-                    else:
-                        curCsvDict[_name][1] += _value
             startDate = period.split('~')[0] # 시작날짜 
-            res = re.findall('(.*)년 (.*)월 (.*)일', startDate)[0]
-            year = int(res[0])
-            month = int(res[1])
-            day = int(res[2])
+            year, month, day = self.splitPeriod(startDate)
             _date = f'{year}-{month}-{day}'
-            for csvKey in curCsvDict:
-                data_result.append([csvKey, curCsvDict[csvKey][0], curCsvDict[csvKey][1], _date])
-        print(data_result)
-        result= pd.DataFrame(data_result)
-        result.to_csv('output.csv',index=False, header=None)
-
-    def analytics_inflow_preprocess(self, joinMeList):
-        for joinMe in joinMeList:
-            ed_list = []
-            board_period_dict = {} # 중복 데이터 검사용
-            dataDir = os.path.join('data', 'inflow_rank', joinMe)
-            outputDir = os.path.join(dataDir, 'preprocess')
-            if not os.path.exists(outputDir):
-                os.makedirs(outputDir)
-            flist = os.listdir(dataDir)
-            for fname in flist:
-                fPath = os.path.join(dataDir, fname)
-                if os.path.isdir(fPath):
-                    continue
-                ed = pd.read_excel(fPath, engine = 'openpyxl')
-                ed_list.append(ed)
-
-                period = ed.columns.values[1]
-                boardType = ed.values[3][1] # 게시판 이름
-                dataTitle = ed.values[4][1] # 검색 유입 or 카페 내 검색
-                data_unique_key = f'{boardType}_{dataTitle}_{period}'
-                if data_unique_key in board_period_dict:
-                    raise Exception(f'동일한 데이터: {data_unique_key}\n{fname} == {board_period_dict[data_unique_key]}')
-                board_period_dict[data_unique_key] = fname
-        
-            ed_list.sort(key=lambda x : x.columns.values[1])
-            for ed in ed_list:
-                period = ed.columns.values[1]
-                startDate = period.split('~')[0] # 시작날짜 
-                year, month, day = self.splitPeriod(startDate)
-                _date = f'{year}-{month}-{day}'
 
 
-                values = ed.values[8:,:]
-                boardType = ed.values[3][1] # 게시판 이름
-                dataTitle = ed.values[4][1] # 검색 유입 or 카페 내 검색
+            values = ed.values[8:,:]
+            boardType = ed.values[3][1] # 게시판 이름
+            dataTitle = ed.values[4][1] # 검색 유입 or 카페 내 검색
+            조사대상 = ed.values[5][1] # 방문자 전체 or 멤버 전체, 비멤버
 
-                result= pd.DataFrame(values)
-                filename = f'{boardType}_{dataTitle}_{_date}.xlsx'
-                outputPath = os.path.join(outputDir, filename)
-                # print(outputPath)
-                result.to_excel(outputPath, index=False, header=None)
+            result= pd.DataFrame(values)
+            filename = f'{boardType}_{dataTitle}_{조사대상}_{_date}.xlsx'
+            outputPath = os.path.join(outputDir, filename)
+            # print(outputPath)
+            result.to_excel(outputPath, index=False, header=None)
+        os.system(f'move {dataDir}\\*.xlsx {moveToDir}')
 
     def analytics_UsemapRank_historical(self, joinMeList, regexTest=None, category_map = {}, autoDetect=False, bHistoricalWebSource=False):
         data_stack = {} # 여러 게시판들의 동일기간 데이터 합치기용
@@ -281,8 +211,8 @@ class Analyzer():
 
             for row in ed.values:
                 map_name = row[1]
-                foundList = re.findall('^(\[.*?\])',map_name)
                 map_name = map_name.lstrip()
+                foundList = re.findall('^(\[.*?\])',map_name)
                 if len(foundList) > 0:
                     removeNum = len(foundList[0])
                     map_name = map_name[removeNum:]
@@ -291,6 +221,9 @@ class Analyzer():
                 if len(foundList) > 0:
                     removeNum = len(foundList[0])
                     map_name = map_name[removeNum:]
+                map_name = map_name.lstrip()
+                if map_name.startswith('EUD'):
+                    map_name = map_name[3:]
                 map_name = map_name.lstrip()
                 view_count = row[5]
                 if map_name == '삭제된 게시글 입니다.':
@@ -402,8 +335,7 @@ class Analyzer():
             print(f'    {map_name[0]}')
             print(f'    {map_name[1]}')
             print()
-            
-
+      
     def analytics_UsemapRank_preprocess(self, joinMeList):
         for joinMe in joinMeList:
             ed_list = []

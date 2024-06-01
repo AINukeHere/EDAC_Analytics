@@ -21,11 +21,12 @@ class DataDownloader():
 
     def DownloadAll(self):
         # 23 = 내가만든유즈맵 26 = 타인제작유즈맵 326 = 맞히기유즈맵
-        for boardID in (23,26,326):
-            self.__download_each_day(boardID)
-            self.__download_each_week(boardID)
-            self.__download_each_month(boardID)
-        self.__download_member_rank_month()
+        # for boardID in (23,26,326):
+        #     self.__download_each_day(boardID)
+        #     self.__download_each_week(boardID)
+        #     self.__download_each_month(boardID)
+        # self.__download_member_rank_month()
+        self.__download_inflow_rank_month()
 
         time.sleep(10)
 
@@ -117,6 +118,36 @@ class DataDownloader():
         print(cmd)
         subprocess.check_call(cmd)
 
+    # 유입분석
+    def __download_inflow_rank_month(self):
+        # 전체 게시판 검색 유입
+        
+        memberIdList=[
+            None,   # 방문자 전체
+            0,      # 비멤버
+            1,      # 커패회원1
+            110,    # 카페회원2
+            120,    # 우수회원1
+            130,    # 우수회원2
+            140,    # 감사회원
+            150     # VIP 회원
+        ]
+        for memberId in memberIdList:
+            downloadURL = f'https://cafe.stat.naver.com/download/cafe/17046257/user/referer/search?service=CAFE&timeDimension=MONTH&startDate={self.analyticsYear}-{self.analyticsMonth:02d}-01'
+            if memberId is not None:
+                downloadURL += f'&memberId={memberId}'
+            cmd = f'"{self.chrome}" "{downloadURL}"'
+            print(cmd)
+            subprocess.check_call(cmd)
+            time.sleep(2)
+
+
+        # 비멤버
+        downloadURL = f'https://cafe.stat.naver.com/download/cafe/17046257/user/referer/search?service=CAFE&timeDimension=MONTH&startDate={self.analyticsYear}-{self.analyticsMonth:02d}-01&memberId=0'
+        cmd = f'"{self.chrome}" "{downloadURL}"'
+        print(cmd)
+        subprocess.check_call(cmd)
+
     def MoveAll(self):
         desktopPath = os.path.join(os.path.expanduser('~'),'Desktop')
 
@@ -142,4 +173,10 @@ class DataDownloader():
         if not os.path.exists(destPath):
             os.makedirs(destPath)
         for srcPath in glob.glob(os.path.join(desktopPath, '카페통계_멤버순위*.xlsx')):
+            shutil.move(srcPath, destPath)
+
+        destPath = f'./data/inflow_rank/'
+        if not os.path.exists(destPath):
+            os.makedirs(destPath)
+        for srcPath in glob.glob(os.path.join(desktopPath, '카페통계_유입분석_검색유입_월간*.xlsx')):
             shutil.move(srcPath, destPath)
