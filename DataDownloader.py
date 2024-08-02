@@ -21,11 +21,11 @@ class DataDownloader():
 
     def DownloadAll(self):
         # 23 = 내가만든유즈맵 26 = 타인제작유즈맵 326 = 맞히기유즈맵
-        # for boardID in (23,26,326):
-        #     self.__download_each_day(boardID)
-        #     self.__download_each_week(boardID)
-        #     self.__download_each_month(boardID)
-        # self.__download_member_rank_month()
+        for boardID in (23,26,326):
+            self.__download_each_day(boardID)
+            self.__download_each_week(boardID)
+            self.__download_each_month(boardID)
+        self.__download_member_rank_month()
         self.__download_inflow_rank_month()
 
         time.sleep(10)
@@ -141,12 +141,6 @@ class DataDownloader():
             subprocess.check_call(cmd)
             time.sleep(2)
 
-
-        # 비멤버
-        downloadURL = f'https://cafe.stat.naver.com/download/cafe/17046257/user/referer/search?service=CAFE&timeDimension=MONTH&startDate={self.analyticsYear}-{self.analyticsMonth:02d}-01&memberId=0'
-        cmd = f'"{self.chrome}" "{downloadURL}"'
-        print(cmd)
-        subprocess.check_call(cmd)
 
     def MoveAll(self):
         desktopPath = os.path.join(os.path.expanduser('~'),'Desktop')
