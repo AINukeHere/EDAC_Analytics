@@ -5,8 +5,8 @@ from analytics import *
 analyzer = Analyzer()
 
 year = 2024
-month = 7
-weekDimStart = (2024,7,1)
+month = 9
+weekDimStart = (2024,8,26)
 # if True:
 if False:
     ### 네이버 카페 통계 데이터 다운로드 및 이동
@@ -21,6 +21,9 @@ if False:
     ### 유즈맵 순위 관리 및 통계
     joinMeList=['day', 'week', 'month']
     analyzer.analytics_UsemapRank_preprocess(joinMeList=joinMeList)
+    
+    ### 유입분석
+    analyzer.analytics_inflow_preprocess()
 
 # if False: # usemap rank analyze
 if True:
@@ -43,5 +46,4 @@ if True:
             bHistoricalWebSource=True)
 
 ### 유입분석
-analyzer.analytics_inflow_preprocess()
 analyzer.analytics_inflow(year, month, category_map)

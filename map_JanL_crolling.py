@@ -25,6 +25,7 @@ self_made_headMap={
     421:'추리',
     423:'슈팅',
     425:'AOS',
+    428:'레이싱',
 }
 made_by_other_headMap={
     378:'캠페인',
@@ -52,6 +53,7 @@ made_by_other_headMap={
     424:'슈팅',
     426:'AOS',
     427:'호환요청',
+    429:'레이싱'
 }
 chrome = r'"C:\Program Files\Google\Chrome\Application\chrome.exe"'
 
@@ -59,11 +61,13 @@ headMapMap={
     23:self_made_headMap,
     26:made_by_other_headMap,
 }
+import time
 for menuid in headMapMap:
     headMap = headMapMap[menuid]
     input()
+    time.sleep(1)
     for headid in headMap:
         url = f'https://cafe.naver.com/edac?iframe_url=/ArticleList.nhn%3Fsearch.clubid=17046257%26search.menuid={menuid}%26search.boardtype=L%26userDisplay=50%26search.headid={headid}'
         cmd = f'{chrome} {url}'
         os.system(cmd)
-        # time.sleep(2)
+        time.sleep(1)

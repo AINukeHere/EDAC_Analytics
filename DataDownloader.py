@@ -102,21 +102,25 @@ class DataDownloader():
         cmd = f'"{self.chrome}" "{downloadURL}"'
         print(cmd)
         subprocess.check_call(cmd)
+        time.sleep(1)
         # 게시글 수
         downloadURL = f'https://cafe.stat.naver.com/download/cafe/17046257/rank/memberCreate?service=CAFE&timeDimension=MONTH&startDate={self.analyticsYear}-{self.analyticsMonth:02d}-01&memberId=%%EB%%A9%%A4%%EB%%B2%%84'
         cmd = f'"{self.chrome}" "{downloadURL}"'
         print(cmd)
         subprocess.check_call(cmd)
+        time.sleep(1)
         # 댓글 수
         downloadURL = f'https://cafe.stat.naver.com/download/cafe/17046257/rank/memberComment?service=CAFE&timeDimension=MONTH&startDate={self.analyticsYear}-{self.analyticsMonth:02d}-01&memberId=%%EB%%A9%%A4%%EB%%B2%%84'
         cmd = f'"{self.chrome}" "{downloadURL}"'
         print(cmd)
         subprocess.check_call(cmd)
+        time.sleep(1)
         # 좋아요 수
         downloadURL = f'https://cafe.stat.naver.com/download/cafe/17046257/rank/memberLiked?service=CAFE&timeDimension=MONTH&startDate={self.analyticsYear}-{self.analyticsMonth:02d}-01&memberId=%%EB%%A9%%A4%%EB%%B2%%84'
         cmd = f'"{self.chrome}" "{downloadURL}"'
         print(cmd)
         subprocess.check_call(cmd)
+        time.sleep(1)
 
     # 유입분석
     def __download_inflow_rank_month(self):
