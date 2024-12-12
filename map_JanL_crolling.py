@@ -70,4 +70,4 @@ for menuid in headMapMap:
         url = f'https://cafe.naver.com/edac?iframe_url=/ArticleList.nhn%3Fsearch.clubid=17046257%26search.menuid={menuid}%26search.boardtype=L%26userDisplay=50%26search.headid={headid}'
         cmd = f'{chrome} {url}'
         os.system(cmd)
-        time.sleep(1)
+        time.sleep(0.1)

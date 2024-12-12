@@ -1,5 +1,5 @@
 import os, time
-import subprocess
+from subprocess import Popen, PIPE
 import shutil, glob
 
 class DataDownloader():
@@ -17,6 +17,7 @@ class DataDownloader():
         self.analyticsWeekDimStartMonth=weekDimStart[1]
         self.analyticsWeekDimStartDay=weekDimStart[2]
 
+        self.subprocessList = []
         self.chrome='C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
 
     def DownloadAll(self):
@@ -30,6 +31,16 @@ class DataDownloader():
 
         time.sleep(10)
 
+    def __getMonthEndDay(self, year, month):
+        endDay=30
+        if month in (1,3,5,7,8,10,12):
+            endDay=31
+        elif month == 2:
+            if year % 4 == 0 and year % 100 != 0:
+                endDay = 29
+            else:
+                endDay = 28
+        return endDay
     # 일간
     def __download_each_day(self, boardID):
         endDay=30
@@ -48,19 +59,11 @@ class DataDownloader():
             downloadURL = f'https://cafe.stat.naver.com/download/cafe/17046257/rank/articleCv?service=CAFE&timeDimension=DATE&startDate={self.analyticsYear}-{self.analyticsMonth:02d}-{day:02d}&selectedBoardId={boardID}'
             cmd = f'\"{self.chrome}\" "{downloadURL}"'
             print(cmd)
-            subprocess.check_call(cmd)
+            
+            ps = Popen([self.chrome,downloadURL],stdout=PIPE, stderr=PIPE)
+            self.subprocessList.append(ps)
+            # subprocess.check_call(cmd)
             time.sleep(1)
-
-    def __getMonthEndDay(self, year, month):
-        endDay=30
-        if month in (1,3,5,7,8,10,12):
-            endDay=31
-        elif month == 2:
-            if year % 4 == 0 and year % 100 != 0:
-                endDay = 29
-            else:
-                endDay = 28
-        return endDay
     # 주간
     def __download_each_week(self, boardID):
         
@@ -73,7 +76,9 @@ class DataDownloader():
             downloadURL = f'https://cafe.stat.naver.com/download/cafe/17046257/rank/articleCv?service=CAFE&timeDimension=WEEK&startDate={curYear}-{curMonth:02d}-{curDay:02d}&selectedBoardId={boardID}'
             cmd = f'"{self.chrome}" "{downloadURL}"'
             print(cmd)
-            subprocess.check_call(cmd)
+            ps = Popen([self.chrome,downloadURL],stdout=PIPE, stderr=PIPE)
+            self.subprocessList.append(ps)
+            # subprocess.check_call(cmd)
             time.sleep(2)
             curDay += 7
             if curDay > curMonthEndDay:
@@ -85,43 +90,49 @@ class DataDownloader():
             if curMonth > self.analyticsMonth or (curMonth == self.analyticsMonth and curDay + 6 > curMonthEndDay):
                 break
             curMonthEndDay = self.__getMonthEndDay(curYear, curMonth)
-
-
     # 월간
     def __download_each_month(self, boardID):
         downloadURL = f'https://cafe.stat.naver.com/download/cafe/17046257/rank/articleCv?service=CAFE&timeDimension=MONTH&startDate={self.analyticsYear}-{self.analyticsMonth:02d}-01&selectedBoardId={boardID}'
         cmd = f'"{self.chrome}" "{downloadURL}"'
         print(cmd)
-        subprocess.check_call(cmd)
+        ps = Popen([self.chrome,downloadURL],stdout=PIPE, stderr=PIPE)
+        self.subprocessList.append(ps)
+        # subprocess.check_call(cmd)
         time.sleep(2)
-
     # 멤버순위
     def __download_member_rank_month(self):
         # 방뭇횟수
         downloadURL = f'https://cafe.stat.naver.com/download/cafe/17046257/rank/memberVisit?service=CAFE&timeDimension=MONTH&startDate={self.analyticsYear}-{self.analyticsMonth:02d}-01&memberId=%%EB%%A9%%A4%%EB%%B2%%84'
         cmd = f'"{self.chrome}" "{downloadURL}"'
         print(cmd)
-        subprocess.check_call(cmd)
+        ps = Popen([self.chrome,downloadURL],stdout=PIPE, stderr=PIPE)
+        self.subprocessList.append(ps)
+        # subprocess.check_call(cmd)
         time.sleep(1)
         # 게시글 수
         downloadURL = f'https://cafe.stat.naver.com/download/cafe/17046257/rank/memberCreate?service=CAFE&timeDimension=MONTH&startDate={self.analyticsYear}-{self.analyticsMonth:02d}-01&memberId=%%EB%%A9%%A4%%EB%%B2%%84'
         cmd = f'"{self.chrome}" "{downloadURL}"'
         print(cmd)
-        subprocess.check_call(cmd)
+        ps = Popen([self.chrome,downloadURL],stdout=PIPE, stderr=PIPE)
+        self.subprocessList.append(ps)
+        # subprocess.check_call(cmd)
         time.sleep(1)
         # 댓글 수
         downloadURL = f'https://cafe.stat.naver.com/download/cafe/17046257/rank/memberComment?service=CAFE&timeDimension=MONTH&startDate={self.analyticsYear}-{self.analyticsMonth:02d}-01&memberId=%%EB%%A9%%A4%%EB%%B2%%84'
         cmd = f'"{self.chrome}" "{downloadURL}"'
         print(cmd)
-        subprocess.check_call(cmd)
+        ps = Popen([self.chrome,downloadURL],stdout=PIPE, stderr=PIPE)
+        self.subprocessList.append(ps)
+        # subprocess.check_call(cmd)
         time.sleep(1)
         # 좋아요 수
         downloadURL = f'https://cafe.stat.naver.com/download/cafe/17046257/rank/memberLiked?service=CAFE&timeDimension=MONTH&startDate={self.analyticsYear}-{self.analyticsMonth:02d}-01&memberId=%%EB%%A9%%A4%%EB%%B2%%84'
         cmd = f'"{self.chrome}" "{downloadURL}"'
         print(cmd)
-        subprocess.check_call(cmd)
+        ps = Popen([self.chrome,downloadURL],stdout=PIPE, stderr=PIPE)
+        self.subprocessList.append(ps)
+        # subprocess.check_call(cmd)
         time.sleep(1)
-
     # 유입분석
     def __download_inflow_rank_month(self):
         # 전체 게시판 검색 유입
@@ -142,9 +153,15 @@ class DataDownloader():
                 downloadURL += f'&memberId={memberId}'
             cmd = f'"{self.chrome}" "{downloadURL}"'
             print(cmd)
-            subprocess.check_call(cmd)
+            ps = Popen([self.chrome,downloadURL],stdout=PIPE, stderr=PIPE)
+            self.subprocessList.append(ps)
+            # subprocess.check_call(cmd)
             time.sleep(2)
 
+    def ClearSubProcess(self):
+        for ps in self.subprocessList:
+            print("terminate()")
+            ps.terminate()
 
     def MoveAll(self):
         desktopPath = os.path.join(os.path.expanduser('~'),'Desktop')

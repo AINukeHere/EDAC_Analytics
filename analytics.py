@@ -125,7 +125,7 @@ class Analyzer():
                     item[i] = ''
         result= pd.DataFrame(result_columns_list)
         # result = result.transpose()
-        result.to_excel(f'{year}년 {month}월 검색 유입 통계.xlsx', index=False, header=None)
+        result.to_excel(f'{reqYear}년 {reqMonth}월 검색 유입 통계.xlsx', index=False, header=None)
 
 
     def analytics_inflow_preprocess(self):

@@ -5,13 +5,18 @@ from analytics import *
 analyzer = Analyzer()
 
 year = 2024
-month = 9
-weekDimStart = (2024,8,26)
+month = 11
+weekDimStart = (2024,10,28)
+
 # if True:
 if False:
+    print('start download')
+    time.sleep(2)
     ### 네이버 카페 통계 데이터 다운로드 및 이동
     downloader = DataDownloader(year=year,month=month,weekDimStart=weekDimStart)
     downloader.DownloadAll()
+    input('ready to move?')
+    downloader.ClearSubProcess()
     print('move xlsx files')
     downloader.MoveAll()
 
