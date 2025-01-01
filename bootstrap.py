@@ -5,8 +5,8 @@ from analytics import *
 analyzer = Analyzer()
 
 year = 2024
-month = 11
-weekDimStart = (2024,10,28)
+month = 12
+weekDimStart = (2024,11,25)
 
 # if True:
 if False:
@@ -33,6 +33,7 @@ if False:
 # if False: # usemap rank analyze
 if True:
     if True: # 일반 통계글 작성용
+    # if False:
         joinMeList=['month','day']
         for joinMe in joinMeList:
             analyzer.analytics_UsemapRank_historical(
@@ -43,12 +44,13 @@ if True:
                 autoDetect= True)
     else: # historical visulaizer
         analyzer.analytics_UsemapRank_historical(
-            joinMeList=['day'], 
-            regexTest=f'.*(내가 만든|타인 제작).*2023-.*',
+            joinMeList=['week'], 
+            regexTest=f'.*(내가 만든|타인 제작).*2024-.*',
             category_map=유즈맵,
             # autoDetect= False,
             autoDetect= True,
-            bHistoricalWebSource=True)
+            bHistoricalWebSource=True,
+            bUseMaxValue = False)
 
 ### 유입분석
 analyzer.analytics_inflow(year, month, category_map)

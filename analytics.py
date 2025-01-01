@@ -173,7 +173,9 @@ class Analyzer():
             result.to_excel(outputPath, index=False, header=None)
         os.system(f'move {dataDir}\\*.xlsx {moveToDir}')
 
-    def analytics_UsemapRank_historical(self, joinMeList, regexTest=None, category_map = {}, autoDetect=False, bHistoricalWebSource=False):
+    # bUseMaxValue: 바 그래프 가시화할때 날짜별 최대 조회수로 순위를 매김
+    def analytics_UsemapRank_historical(self, joinMeList, regexTest=None, category_map = {}, autoDetect=False, 
+                                        bHistoricalWebSource=False, bUseMaxValue=False):
         data_stack = {} # 여러 게시판들의 동일기간 데이터 합치기용
         ed_list = []
         typeDict = {}
@@ -256,11 +258,31 @@ class Analyzer():
         if bHistoricalWebSource:
             # historical 만 출력
             data_result = [['name','type','value','date']] # csv 데이터
-            for keyDate in data_stack:
-                curCsvDict = data_stack[keyDate]
-                for _name in curCsvDict:
-                    data_result.append([
-                        _name, curCsvDict[_name][0], curCsvDict[_name][1], keyDate])
+
+            # 최고 조회수만 갱신해서 그걸로 결과 보여주기
+            if bUseMaxValue:
+                max_values = {}
+                for i,keyDate in enumerate(data_stack):
+                    curCsvDict = data_stack[keyDate]
+                    for _name in curCsvDict:
+                        data = curCsvDict[_name]
+                        # 최초로 나오거나 기존 최대치보다 크면 저장
+                        if not _name in max_values or max_values[_name] < data[1]:
+                            max_values[_name] = data[1]
+                    sorted_max_values = sorted(max_values, key=lambda x:max_values[x], reverse=True)
+                    if (i % 7) == 0:
+                        for k,_name in enumerate(sorted_max_values):
+                            if k > 50:
+                                break
+                            data_result.append([
+                                _name, typeDict[_name], max_values[_name], keyDate])
+            else:
+                for keyDate in data_stack:
+                    curCsvDict = data_stack[keyDate]
+                    for _name in curCsvDict:
+                        data = curCsvDict[_name]
+                        data_result.append([
+                            _name, data[0], data[1], keyDate])
 
             # for _name in all_csv_data:
             #     data_result.append(all_csv_data[_name])

@@ -21,6 +21,7 @@ category_map = {
 }
 유즈맵={
     '1000억 광전사 막기':['1000억 광전사 막기'],
+    '1억 일꾼 막기 (인성)':['1억 일꾼 막기 (인성)'],
     '2020 일본좀비침공':['2020 일본좀비침공'],
     '2022 한국외계침공':['2022 한국외계침공'],
     '2024 한국전쟁 정식':['2024 한국전쟁 정식'],
@@ -59,6 +60,7 @@ category_map = {
     'Space Strike':['Space Strike'],
     'StarCraft Story Wars':['StarCraft Story Wars'],
     'Stock Market':['Stock Market', 'Stock market'],
+    'Sword Master Story - 정복기':['Sword Master Story - 정복기'],
     'The Survive':['The Survive'],
     'The Unknown Land':['The Unknown Land'],
     'Vampiric - Broken Arrow':['Vampiric - Broken Arrow'],
@@ -110,6 +112,8 @@ category_map = {
     '당첨된 히어로 키우기 VERY HARD':['당첨된 히어로 키우기 VERY HARD', '당첨된 히어로 키우기 VeryHard'],
     '더 하우스 The House':['더 하우스 The House'],
     '던전 듀오 모험대':['던전 듀오 모험대'],
+    '던전의세계 RPG':['던전의세계 RPG'],
+    '던전의세계 VII':['던전의세계 VII'],
     '던파 운빨 디펜스 -귀검사':['던파 운빨 디펜스 -귀검사'],
     '덱 빌딩 디펜스':['덱 빌딩 디펜스', '덱빌딩 디펜스'],
     '도둑 강화기':['도둑 강화기'],
@@ -300,6 +304,7 @@ category_map = {
     '정글에서 살아남기':['정글에서 살아남기'],
     '좀비 살아남기':['좀비 살아남기'],
     '좀비 아포칼립스 Union':['좀비 아포칼립스 Union'],
+    '좀비 아포칼립스2':['좀비 아포칼립스2'],
     '좀비월드_1.꺼져가는 불씨':['좀비월드_1.꺼져가는 불씨'],
     '좀비플래닛2':['좀비플래닛2'],
     '주술 고전 지키기':['주술 고전 지키기'],
@@ -327,6 +332,7 @@ category_map = {
     '타소니스 그 어딘가':['타소니스 그 어딘가'],
     '테라포마스':['테라포마스'],
     '톰과제리 숲과 언덕':['톰과제리 숲과 언덕'],
+    '톰과제리 아리안트':['톰과제리 아리안트'],
     '톰과제리 언더월드':['톰과제리 언더월드'],
     '톰과제리 잔디마을':['톰과제리 잔디마을'],
     '투르크 제국사':['투르크 제국사'],
@@ -363,13 +369,10 @@ category_map = {
     '협동 사각강화디펜스':['협동 사각강화디펜스'],
     '협력전 혼돈의 동부왕국':['협력전 혼돈의 동부왕국'],
     '휴먼 리소스':['휴먼 리소스'],
-    'Sword Master Story - 정복기':['Sword Master Story - 정복기'],
-    '던전의세계 VII':['던전의세계 VII'],
-    '던전의세계 RPG':['던전의세계 RPG'],
 }
 
-# res = sorted(유즈맵)
-# for i in res:
-#     value = 유즈맵[i]
-#     print(f"'{i}':{value},")
-# input('continue')
+res = sorted(유즈맵)
+for i in res:
+    value = 유즈맵[i]
+    print(f"'{i}':{value},")
+input('continue')
