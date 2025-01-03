@@ -173,9 +173,35 @@ class Analyzer():
             result.to_excel(outputPath, index=False, header=None)
         os.system(f'move {dataDir}\\*.xlsx {moveToDir}')
 
-    # bUseMaxValue: 바 그래프 가시화할때 날짜별 최대 조회수로 순위를 매김
+    # 게시글 제목 앞에 붙은 [머시기], EUD, (1인용) 이런거 제거함
+    def removeUselessPostTitle(self, post_title):
+        post_title = post_title.lstrip()
+        while True:
+            foundList = re.findall('^(\[.*?\])',post_title)
+            if len(foundList) == 0:
+                break
+            removeNum = len(foundList[0])
+            post_title = post_title[removeNum:]
+
+        while True:
+            post_title = post_title.lstrip()
+            foundList = re.findall('^(\(.*?\))',post_title)
+            if len(foundList) == 0:
+                break
+            removeNum = len(foundList[0])
+            post_title = post_title[removeNum:]
+            
+        post_title = post_title.lstrip()
+        if post_title.startswith('EUD'):
+            post_title = post_title[3:]
+        post_title = post_title.lstrip()
+        return post_title
+    
     def analytics_UsemapRank_historical(self, joinMeList, regexTest=None, category_map = {}, autoDetect=False, 
-                                        bHistoricalWebSource=False, bUseMaxValue=False):
+                                        bHistoricalWebSource=False, useValueMethod='each'):
+        '''
+        useValueMethod: each면 집계된 값을 그대로 사용. max는 집계된 값중 최대치를 사용, acc는 집계된 값을 모두 누적하여 사용
+        '''
         data_stack = {} # 여러 게시판들의 동일기간 데이터 합치기용
         ed_list = []
         typeDict = {}
@@ -191,6 +217,7 @@ class Analyzer():
                 if regexTest is not None:
                     if re.search(regexTest, fname) is None:
                         continue
+                
                 print(fname)
                 ed = pd.read_excel(fPath, engine = 'openpyxl')
                 ed_list.append([fname, ed])
@@ -200,7 +227,7 @@ class Analyzer():
                 board_period_dict[fname] = True
         
         ed_list.sort(key=lambda x : x[0])
-        for ed_item in ed_list:
+        for ed_item in ed_list: # 모든 엑셀파일마다
             fname = ed_item[0]
             ed = ed_item[1]
             res = re.findall('.*_(.*)\\.xlsx', fname)
@@ -208,51 +235,39 @@ class Analyzer():
             print(_date)
 
             if not _date in data_stack:
-                data_stack[_date] = {}
+                data_stack[_date] = {} # 데이터기간을 키로하여 csv를 만든다
             curCsvDict = data_stack[_date]
 
             for row in ed.values:
-                map_name = row[1]
-                map_name = map_name.lstrip()
-                foundList = re.findall('^(\[.*?\])',map_name)
-                if len(foundList) > 0:
-                    removeNum = len(foundList[0])
-                    map_name = map_name[removeNum:]
-                map_name = map_name.lstrip()
-                foundList = re.findall('^(\(.*?\))',map_name)
-                if len(foundList) > 0:
-                    removeNum = len(foundList[0])
-                    map_name = map_name[removeNum:]
-                map_name = map_name.lstrip()
-                if map_name.startswith('EUD'):
-                    map_name = map_name[3:]
-                map_name = map_name.lstrip()
+                post_title = self.removeUselessPostTitle(row[1])
+                if post_title == '삭제된 게시글 입니다.':
+                    continue
+
                 view_count = row[5]
-                if map_name == '삭제된 게시글 입니다.':
-                    continue
-                if '' == map_name:
-                    pass
-                _name = map_name
+
+                _map_name = post_title #일단 게시글 제목 자체를 맵 이름으로 보자
                 if category_map is not None:
-                    for category_name in category_map:
-                        for category_joinValue in category_map[category_name]:
-                            if category_joinValue in map_name:
-                                _name = category_name
-                if _name in ['기타', '맞히기 관련']:#, '메운디 관련']:
-                    continue
-                if not _name in typeDict:
-                    typeDict[_name] = nextType
+                    for category_name in category_map: # 모든 맵이름 딕셔너리를 돌면서
+                        for category_joinValue in category_map[category_name]: # 모든 맵 매핑 단어를 돌면서
+                            if category_joinValue in post_title: # 해당 단어가 포함된 경우
+                                _map_name = category_name # 해당 맵 이름으로 변경
+
+                # 맵 하나하나마다 고유한 type 값을 만듬 (그래프 가시화 용도)
+                if not _map_name in typeDict:
+                    typeDict[_map_name] = nextType
                     nextType += 1
-                _type = typeDict[_name]
+                _type = typeDict[_map_name]
+
                 _value = 0
                 if type(view_count) == int:
                     _value = view_count
                 else:
                     _value = int(view_count.replace(',',''))
-                if not _name in curCsvDict:
-                    curCsvDict[_name] = [_type, _value,0]
+
+                if not _map_name in curCsvDict:
+                    curCsvDict[_map_name] = [_type, _value,0]
                 else:
-                    curCsvDict[_name][1] += _value
+                    curCsvDict[_map_name][1] += _value
 
 
         if bHistoricalWebSource:
@@ -260,29 +275,29 @@ class Analyzer():
             data_result = [['name','type','value','date']] # csv 데이터
 
             # 최고 조회수만 갱신해서 그걸로 결과 보여주기
-            if bUseMaxValue:
+            if useValueMethod == 'max':
                 max_values = {}
                 for i,keyDate in enumerate(data_stack):
                     curCsvDict = data_stack[keyDate]
-                    for _name in curCsvDict:
-                        data = curCsvDict[_name]
+                    for _map_name in curCsvDict:
+                        data = curCsvDict[_map_name]
                         # 최초로 나오거나 기존 최대치보다 크면 저장
-                        if not _name in max_values or max_values[_name] < data[1]:
-                            max_values[_name] = data[1]
+                        if not _map_name in max_values or max_values[_map_name] < data[1]:
+                            max_values[_map_name] = data[1]
                     sorted_max_values = sorted(max_values, key=lambda x:max_values[x], reverse=True)
-                    if (i % 7) == 0:
-                        for k,_name in enumerate(sorted_max_values):
-                            if k > 50:
-                                break
-                            data_result.append([
-                                _name, typeDict[_name], max_values[_name], keyDate])
-            else:
+                    # if (i % 7) == 0:
+                    for k,_map_name in enumerate(sorted_max_values):
+                        if k > 50:
+                            break
+                        data_result.append([
+                            _map_name, typeDict[_map_name], max_values[_map_name], keyDate])
+            elif useValueMethod == 'each':
                 for keyDate in data_stack:
                     curCsvDict = data_stack[keyDate]
-                    for _name in curCsvDict:
-                        data = curCsvDict[_name]
+                    for _map_name in curCsvDict:
+                        data = curCsvDict[_map_name]
                         data_result.append([
-                            _name, data[0], data[1], keyDate])
+                            _map_name, data[0], data[1], keyDate])
 
             # for _name in all_csv_data:
             #     data_result.append(all_csv_data[_name])
@@ -291,24 +306,24 @@ class Analyzer():
             all_csv_data = {}
             for csvDictKey in data_stack:
                 csvDict = data_stack[csvDictKey]
-                for _name in csvDict:
-                    _type = csvDict[_name][0]
-                    _value = int(csvDict[_name][1])
+                for _map_name in csvDict:
+                    _type = csvDict[_map_name][0]
+                    _value = int(csvDict[_map_name][1])
                     _date = csvDictKey
-                    if not _name in all_csv_data:
-                        all_csv_data[_name] = [_name, _type, _value, _date]
+                    if not _map_name in all_csv_data:
+                        all_csv_data[_map_name] = [_map_name, _type, _value, _date]
                     else:
-                        all_csv_data[_name][2] += _value
-                        all_csv_data[_name][3] += f', {_date}'
+                        all_csv_data[_map_name][2] += _value
+                        all_csv_data[_map_name][3] += f', {_date}'
             # historical + 꾸준한 조회수를 받은 (날짜가 많은) 건지 데이터 추가
             data_result = [['name','type','value','date count', 'date']] # csv 데이터
-            for _name in all_csv_data:
+            for _map_name in all_csv_data:
                 data_result.append([
-                    all_csv_data[_name][0],
-                    all_csv_data[_name][1],
-                    all_csv_data[_name][2],
-                    all_csv_data[_name][3].count(',')+1,
-                    all_csv_data[_name][3]
+                    all_csv_data[_map_name][0],
+                    all_csv_data[_map_name][1],
+                    all_csv_data[_map_name][2],
+                    all_csv_data[_map_name][3].count(',')+1,
+                    all_csv_data[_map_name][3]
                     ])
 
         result= pd.DataFrame(data_result)
@@ -319,7 +334,7 @@ class Analyzer():
             outputFileName = f'output_{joinMeList}.xlsx'
             result.to_excel(outputFileName, index=False, header=None)
 
-        ### 디버깅 or 단순출력
+        ### 여기서 부터는 디버깅 or 단순출력
         sorted_data = data_result[1:]
         sorted_data.sort(key=lambda x: x[0]) # name 에 대해서 정렬
         # sorted_data.sort(key=lambda x: x[2]) # value 에 대해서 정렬
@@ -353,9 +368,9 @@ class Analyzer():
             for _data in sorted_data:
                 print(_data)
         
-        for map_name in tqdm(의심목록):
-            print(f'    {map_name[0]}')
-            print(f'    {map_name[1]}')
+        for post_title in tqdm(의심목록):
+            print(f'    {post_title[0]}')
+            print(f'    {post_title[1]}')
             print()
       
     def analytics_UsemapRank_preprocess(self, joinMeList):
@@ -420,10 +435,9 @@ class Analyzer():
             os.system(f'mkdir {moveToDir}')
 
         for fname in filenamelist:
-            fPath = os.path.join(dataDir,fname)
+            fPath = os.path.join(dataDir, fname)
             if os.path.isdir(fPath):
                 continue
-            fPath = os.path.join(dataDir, fname)
             ed = pd.read_excel(fPath, engine = 'openpyxl')
             ed = ed.fillna('nan')
             # ed['Unnamed: 4'] = ed['Unnamed: 4'].astype(int)
@@ -474,7 +488,6 @@ class Analyzer():
             fPath = os.path.join(dataDir,fname)
             if os.path.isdir(fPath):
                 continue
-            fPath = os.path.join(dataDir, fname)
             ed = pd.read_excel(fPath, engine = 'openpyxl')
             ed = ed.fillna('nan')
             for rank_type in member_rank_dict:
@@ -511,8 +524,26 @@ class Analyzer():
                     rank += 1 + sameScoreCount
                     sameScoreCount = 0
                 curItem.insert(0,rank)
-            curDF = pd.DataFrame(curRankListTop100)
-            curDF.to_excel(f'{year}년 {rank_type} 통계.xlsx', index=False, header=['순위','닉네임',rank_type])
+
+            rankType = None
+            if rank_type == '작성게시글수':
+                rankType = RANK_TYPE_POST
+            elif rank_type == '받은좋아요수':
+                rankType = RANK_TYPE_LIKE
+            elif rank_type == '작성댓글수':
+                rankType = RANK_TYPE_COMMENT
+            elif rank_type == '방문횟수':
+                rankType = RANK_TYPE_VISIT
+            else:
+                raise Exception(f'Unknown data category name. fname={fname}')
+            
+            # 스프레드 시트에 업로드
+            curRankListTop100.insert(0, [f'{year}년',None,None])
+            curRankListTop100.insert(1, [f'순위','닉네임',rank_type])
+            self.writer.writeRankData(year, None, rankType, curRankListTop100)
+            # 엑셀로 저장
+            # curDF = pd.DataFrame(curRankListTop100)
+            # curDF.to_excel(f'{year}년 {rank_type} 통계.xlsx', index=False, header=['순위','닉네임',rank_type])
 
 
     

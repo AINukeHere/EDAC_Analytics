@@ -40,17 +40,18 @@ if True:
                 joinMeList=[joinMe], 
                 regexTest=f'.*(내가 만든|타인 제작).*{year}-{month:02d}.*',
                 category_map=유즈맵,
-                # autoDetect= False)
-                autoDetect= True)
+                autoDetect= True,
+                useValueMethod='each')
+                # useValueMethod='acc')
     else: # historical visulaizer
         analyzer.analytics_UsemapRank_historical(
-            joinMeList=['week'], 
+            joinMeList=['month'], 
             regexTest=f'.*(내가 만든|타인 제작).*2024-.*',
             category_map=유즈맵,
             # autoDetect= False,
             autoDetect= True,
             bHistoricalWebSource=True,
-            bUseMaxValue = False)
+            useValueMethod = True)
 
 ### 유입분석
 analyzer.analytics_inflow(year, month, category_map)

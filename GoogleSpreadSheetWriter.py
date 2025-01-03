@@ -34,6 +34,12 @@ class GoogleSpreadSheetWriter():
         except gspread.WorksheetNotFound:
             worksheet = self.spreadsheetList[year].add_worksheet(sheetName,110*11+102, 18)
         gspread.Spreadsheet.add_worksheet
+
+        if month is None:
+            idxOffset = 110 * (13 - 1) + 1
+            cellIdx = f'A{idxOffset}'
+            worksheet.update(cellIdx, data)
+            return True
         if month < 1 or 12 < month:
             print('month must be between 1 and 12. ')
             return False
