@@ -4,9 +4,9 @@ from MapDictionary import category_map, 유즈맵
 from analytics import *
 analyzer = Analyzer()
 
-year = 2024
-month = 12
-weekDimStart = (2024,11,25)
+year = 2025
+month = 1
+weekDimStart = (2024,12,30)
 
 # if True:
 if False:
