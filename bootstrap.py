@@ -5,8 +5,8 @@ from analytics import *
 analyzer = Analyzer()
 
 year = 2025
-month = 1
-weekDimStart = (2024,12,30)
+month = 2
+weekDimStart = (2025,1,27)
 
 # if True:
 if False:
