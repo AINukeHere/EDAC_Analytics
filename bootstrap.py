@@ -5,11 +5,16 @@ from analytics import *
 analyzer = Analyzer()
 
 year = 2025
-month = 3
-weekDimStart = (2025, 2, 24)
+month = 4
+weekDimStart = (2025, 3, 31)
 
 # if True:
-if False:
+checkFile = f'2025년 4월 검색 유입 통계.xlsx'
+alreadyDownload = os.path.exists(checkFile)
+
+if alreadyDownload:
+    print('pass download, upload member rank, usemapRank preprocess.')
+else:
     print('start download')
     time.sleep(2)
     ### 네이버 카페 통계 데이터 다운로드 및 이동
