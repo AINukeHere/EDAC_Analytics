@@ -5,11 +5,11 @@ from analytics import *
 analyzer = Analyzer()
 
 year = 2025
-month = 4
-weekDimStart = (2025, 3, 31)
+month = 5
+weekDimStart = (2025, 4, 28)
 
 # if True:
-checkFile = f'2025년 4월 검색 유입 통계.xlsx'
+checkFile = f'{year}년 {month}월 검색 유입 통계.xlsx'
 alreadyDownload = os.path.exists(checkFile)
 
 if alreadyDownload:
