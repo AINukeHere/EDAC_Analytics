@@ -5,8 +5,8 @@ from analytics import *
 analyzer = Analyzer()
 
 year = 2025
-month = 5
-weekDimStart = (2025, 4, 28)
+month = 6
+weekDimStart = (2025, 5, 26)
 
 # if True:
 checkFile = f'{year}년 {month}월 검색 유입 통계.xlsx'
@@ -14,6 +14,7 @@ alreadyDownload = os.path.exists(checkFile)
 
 if alreadyDownload:
     print('pass download, upload member rank, usemapRank preprocess.')
+    time.sleep(2)
 else:
     print('start download')
     time.sleep(2)
