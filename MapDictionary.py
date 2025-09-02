@@ -452,6 +452,20 @@ category_map = {
     'Toy With The Mine':['Toy With The Mine'],
     '저그 강화 키우기':['저그 강화 키우기'],
     '감염된 튼튼이의 모험':['감염된 튼튼이의 모험'],
+    '저능아 스킬대전':['저능아 스킬대전'],
+    '원피스 NEW WAR 대전쟁':['원피스 NEW WAR 대전쟁'],
+    '사라 캠페인':['사라 캠페인'],
+    'RDM Bound Newbee2':['RDM Bound Newbee2'],
+    '드래곤볼 Z Sparking!':['드래곤볼 Z Sparking!'],
+    '드라군 1000부대 막기 EASY':['드라군 1000부대 막기 EASY'],
+    '드라군 1000부대 막기 NORMAL':['드라군 1000부대 막기 NORMAL'],
+    '드라군 1000부대 막기 HARD':['드라군 1000부대 막기 HARD'],
+    '다굴게임 EX':['다굴게임 EX'],
+    '저그강화키우기':['저그강화키우기'],
+    'Mind the Mine':['Mind the Mine'],
+    'Party RPG':['Party RPG'],
+    '스타크래프트 세계관':['스타크래프트 세계관'],
+    '마린키우기 메롱시티':['마린키우기 메롱시티'],
 }
 
 if __name__ == "__main__":
