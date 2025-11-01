@@ -46,5 +46,7 @@ class GoogleSpreadSheetWriter():
 
         idxOffset = 110 * (month - 1) + 1
         cellIdx = f'A{idxOffset}'
+        headIdx = f'A{idxOffset - 1}'
+        worksheet.update(headIdx, [f'{year}년 {month}월 auto update'])
         worksheet.update(cellIdx, data)
         return True
