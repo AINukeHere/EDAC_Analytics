@@ -5,12 +5,13 @@ from analytics import *
 analyzer = Analyzer()
 
 year = 2025
-month = 10
-weekDimStart = (2025, 9, 29)
+month = 11
+weekDimStart = (2025, 10, 27)
 
 # if True:
 checkFile = f'{year}년 {month}월 검색 유입 통계.xlsx'
 alreadyDownload = os.path.exists(checkFile)
+# alreadyDownload = False
 
 if alreadyDownload:
     print('pass download, upload member rank, usemapRank preprocess.')
