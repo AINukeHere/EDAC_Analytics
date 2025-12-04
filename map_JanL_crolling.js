@@ -73,6 +73,8 @@ async function analyze(menuName, menuId, headMap, analyzeYear, analyzeMonth){
         let count = 0;
         const result = [];
         for(const item of res.result.articleList){
+            if (item.item.headId !== headId)
+                continue;
             const writeDate = new Date(item.item.writeDateTimestamp);
             const writeYear = writeDate.getFullYear();
             const writeMonth = writeDate.getMonth()+1;  
@@ -82,11 +84,11 @@ async function analyze(menuName, menuId, headMap, analyzeYear, analyzeMonth){
             result.push(item.item.subject);
             count++;
         }
-        console.log(`${menuName} ${headName} ${count}개\n${result.join('\n\t')}`);
+        console.log(`${menuName} ${headName} ${count}개\n\t${result.join('\n\t')}`);
     }
 }
 const analyzeYear = 2025;
-const analyzeMonth = 10;
+const analyzeMonth = 11;
 analyze('내가만든유즈맵', 23, 내가만든유즈맵, analyzeYear, analyzeMonth).then(() => {
     analyze('타인제작유즈맵', 26, 타인제작유즈맵, analyzeYear, analyzeMonth);
 });

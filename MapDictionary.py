@@ -472,6 +472,14 @@ category_map = {
     '포켓몬스터 GSC':['포켓몬스터 GSC'],
     '원피스 영웅 컴까기':['원피스 영웅 컴까기'],
     '블리치 운빨 디펜스':['블리치 운빨 디펜스'],
+    '좀비헌터2':['좀비헌터2'],
+    '입장 바뀐 오메가(생컨)':['입장 바뀐 오메가(생컨)'],
+    '마린키우기 EDM':['마린키우기 EDM'],
+    '라임정복기':['라임정복기'],
+    '랜덤능력팀입구막기X':['랜덤능력팀입구막기X', '랜덤능력팀입구막기 X'],
+    'Starship Troopers':['Starship Troopers'],
+    'Project: OutLast':['Project: OutLast'],
+    'Ghost Shoots Defense':['Ghost Shoots Defense'],
 }
 
 if __name__ == "__main__":
