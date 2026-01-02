@@ -88,7 +88,7 @@ async function analyze(menuName, menuId, headMap, analyzeYear, analyzeMonth){
     }
 }
 const analyzeYear = 2025;
-const analyzeMonth = 11;
+const analyzeMonth = 12;
 analyze('내가만든유즈맵', 23, 내가만든유즈맵, analyzeYear, analyzeMonth).then(() => {
     analyze('타인제작유즈맵', 26, 타인제작유즈맵, analyzeYear, analyzeMonth);
 });

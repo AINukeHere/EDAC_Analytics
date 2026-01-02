@@ -252,6 +252,10 @@ class Analyzer():
                             if category_joinValue in post_title: # 해당 단어가 포함된 경우
                                 _map_name = category_name # 해당 맵 이름으로 변경
 
+                # debug code
+                if '정모하고 모험하기' in _map_name:
+                    pass
+                
                 # 맵 하나하나마다 고유한 type 값을 만듬 (그래프 가시화 용도)
                 if not _map_name in typeDict:
                     typeDict[_map_name] = nextType
