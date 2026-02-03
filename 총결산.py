@@ -1,7 +1,7 @@
 
 from analytics import *
 from MapDictionary import 유즈맵
-year = 2024
+year = 2025
 analyzer = Analyzer()
 # analyzer.analytics_member_1year(year)
 analyzer.analytics_UsemapRank_historical(

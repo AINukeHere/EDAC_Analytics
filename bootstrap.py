@@ -4,9 +4,9 @@ from MapDictionary import category_map, 유즈맵
 from analytics import *
 analyzer = Analyzer()
 
-year = 2025
-month = 12
-weekDimStart = (2025, 12, 1)
+year = 2026
+month = 1
+weekDimStart = (2025, 12, 29)
 
 # if True:
 checkFile = f'{year}년 {month}월 검색 유입 통계.xlsx'

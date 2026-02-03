@@ -451,7 +451,7 @@ class Analyzer():
             month = int(groupList[0][1])
 
             data = ed.values[5:,:]
-            head = [f'{year}년 {month}월','','','','']
+            head = [f'{year}년 {month}월 auto update','','','','']
             data = data.tolist()
             for i in range(1,len(data)):
                 data[i][4] = int(data[i][4])
