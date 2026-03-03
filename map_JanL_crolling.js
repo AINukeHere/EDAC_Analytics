@@ -87,8 +87,8 @@ async function analyze(menuName, menuId, headMap, analyzeYear, analyzeMonth){
         console.log(`${menuName} ${headName} ${count}개\n\t${result.join('\n\t')}`);
     }
 }
-const analyzeYear = 2025;
-const analyzeMonth = 12;
+const analyzeYear = 2026;
+const analyzeMonth = 2;
 analyze('내가만든유즈맵', 23, 내가만든유즈맵, analyzeYear, analyzeMonth).then(() => {
     analyze('타인제작유즈맵', 26, 타인제작유즈맵, analyzeYear, analyzeMonth);
 });
