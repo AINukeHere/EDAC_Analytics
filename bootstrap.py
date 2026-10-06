@@ -5,8 +5,8 @@ from analytics import *
 analyzer = Analyzer()
 
 year = 2026
-month = 8
-weekDimStart = (2026, 7, 27)
+month = 9
+weekDimStart = (2026, 8, 31)
 
 # if True:
 checkFile = f'{year}년 {month}월 검색 유입 통계.xlsx'
